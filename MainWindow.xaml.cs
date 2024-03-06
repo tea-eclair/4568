@@ -1,68 +1,65 @@
-﻿using Drag_and_Drop;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace drag2
+namespace Organy_Drag_and_Drop
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            Window1 window1 = new Window1();
-            window1.Show();
-        }
-        private void RectMove(object sender, MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                DragDrop.DoDragDrop(blackRect, new DataObject(DataFormats.Serializable, blackRect), DragDropEffects.Move);
-            }
-        }
-        private void CanvasDrop(object sender, DragEventArgs e)
-        {
-            object data = e.Data.GetData(DataFormats.Serializable);
-            if (data is UIElement element && !canvas.Children.Contains(element))
-            {
-                double elementWidth = element.RenderSize.Width;
-                double elementHeight = element.RenderSize.Height;
-                Point dropPosition = e.GetPosition(canvas);
-                Canvas.SetLeft(element, dropPosition.X - elementWidth / 2);
-                Canvas.SetTop(element, dropPosition.Y - elementHeight / 2);
-                canvas.Children.Add(element);
-            }
 
+            // Добавляем обработчики событий для изображений
+            AddDragAndDropEvents(True_Card1);
+            AddDragAndDropEvents(True_Card2);
+            AddDragAndDropEvents(True_Card3);
+            AddDragAndDropEvents(True_Card4);
+            AddDragAndDropEvents(False_Card1);
+            AddDragAndDropEvents(False_Card2);
+            AddDragAndDropEvents(False_Card3);
         }
-        private void CanvasDragOver(object sender, DragEventArgs e)
+
+        // Метод для добавления обработчиков событий для изображения
+        private void AddDragAndDropEvents(Image image)
         {
-            object data = e.Data.GetData(DataFormats.Serializable);
-            if (data is UIElement element)
+            image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+            image.MouseMove += Image_MouseMove;
+            image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
+        }
+
+        private bool isDragging = false;
+        private Point originalMousePosition;
+        private TranslateTransform originalTranslation;
+
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            isDragging = true;
+            originalMousePosition = e.GetPosition(null);
+            originalTranslation = new TranslateTransform(Canvas.GetLeft((UIElement)sender), Canvas.GetTop((UIElement)sender));
+            ((UIElement)sender).RenderTransform = originalTranslation;
+            ((UIElement)sender).CaptureMouse();
+        }
+
+        private void Image_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
             {
-                double elementWidth = element.RenderSize.Width;
-                double elementHeight = element.RenderSize.Height;
-                Point dropPosition = e.GetPosition(canvas);
-                Canvas.SetLeft(element, dropPosition.X - elementWidth / 2);
-                Canvas.SetTop(element, dropPosition.Y - elementHeight / 2);
+                Point currentPosition = e.GetPosition(null);
+                Vector delta = Point.Subtract(currentPosition, originalMousePosition);
+                originalTranslation.X += delta.X;
+                originalTranslation.Y += delta.Y;
+                Canvas.SetLeft((UIElement)sender, originalTranslation.X);
+                Canvas.SetTop((UIElement)sender, originalTranslation.Y);
+                originalMousePosition = currentPosition;
             }
         }
-        private void CanvasDragLeave(object sender, DragEventArgs e)
+
+        private void Image_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            object data = e.Data.GetData(DataFormats.Serializable);
-            if (data is UIElement element)
-            {
-                canvas.Children.Remove(element);
-            }
+            isDragging = false;
+            ((UIElement)sender).ReleaseMouseCapture();
         }
     }
 }
