@@ -4,12 +4,12 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Canvas Name="canvas">
-        <Image Source="https://3.bp.blogspot.com/-3JdmbE_aXFg/T3HPiOPz3FI/AAAAAAAAAPY/kXzBiuMQzwo/s1600/outline.png"
+            <Image Source="https://3.bp.blogspot.com/-3JdmbE_aXFg/T3HPiOPz3FI/AAAAAAAAAPY/kXzBiuMQzwo/s1600/outline.png"
                Width="248"
-               Height="474"
-               Canvas.Left="558" HorizontalAlignment="Left" VerticalAlignment="Center"
-               x:Name="People"/>
-        <Image Source="https://gas-kvas.com/grafic/uploads/posts/2023-09/1695838575_gas-kvas-com-p-kartinki-legkie-12.jpg"
+               Height="426"
+               Canvas.Left="351" HorizontalAlignment="Left" VerticalAlignment="Top"
+               x:Name="People" Canvas.Top="4"/>
+            <Image Source="https://gas-kvas.com/grafic/uploads/posts/2023-09/1695838575_gas-kvas-com-p-kartinki-legkie-12.jpg"
                Width="67"
                Height="50"
                Canvas.Left="610"
@@ -17,41 +17,26 @@
                x:Name="True_Card1"/>
 
 
-        <Image Source="https://gas-kvas.com/uploads/posts/2023-02/1676438609_gas-kvas-com-p-zheludok-risunok-detskii-10.jpg"
+            <Image Source="https://gas-kvas.com/uploads/posts/2023-02/1676438609_gas-kvas-com-p-zheludok-risunok-detskii-10.jpg"
                Width="68"
                Height="42"
                Canvas.Left="609" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="184"
                x:Name="True_Card2" RenderTransformOrigin="-0.368,1.049"/>
-        <Image Source="https://chzs.ru/wp-content/uploads/b/9/9/b99747dfce57a7b14798cfa04f07e7f5.png"
+            <Image Source="https://chzs.ru/wp-content/uploads/b/9/9/b99747dfce57a7b14798cfa04f07e7f5.png"
                     Width="35"
                     Height="54"
                     Canvas.Left="607" HorizontalAlignment="Left" VerticalAlignment="Top" 
                Canvas.Top="83" RenderTransformOrigin="0.429,0.14"
                x:Name="True_Card3"/>
-        <Image Source="https://img.razrisyika.ru/kart/29/1200/114576-mozg-21.jpg"
+            <Image Source="https://img.razrisyika.ru/kart/29/1200/114576-mozg-21.jpg"
 Width="33"
 Height="33"
 Canvas.Left="627" HorizontalAlignment="Left" VerticalAlignment="Center"
                x:Name="True_Card4" Canvas.Top="15" RenderTransformOrigin="0.758,1.032"/>
 
-        <Image Source="https://abrakadabra.fun/uploads/posts/2022-02/1645007727_1-abrakadabra-fun-p-kotyata-na-prozrachnom-fone-3.jpg"
-Width="87"
-Height="80"
-Canvas.Left="165" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="305"
-               x:Name="False_Card1"/>
-
-        <Image Source="https://catherineasquithgallery.com/uploads/posts/2021-03/1614582176_18-p-dinozavr-kartinka-na-belom-fone-25.jpg"
-Width="145"
-Height="80"
-Canvas.Left="259" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="157"
-               x:Name="False_Card2" RenderTransformOrigin="0.91,1.45"/>
-        <Image Source="https://thumbs.dreamstime.com/b/и-юстрация-камней-в-почках-69313643.jpg"
-Width="49"
-Height="59"
-Canvas.Left="120" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="237"
-               x:Name="False_Card3" RenderTransformOrigin="0.42,1.164"/>
+           
         </Canvas>
-            <Button Content="Разбросать" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Click="Button_Scatter_Click"/>
-            <Button Content="Собрать" HorizontalAlignment="Left" Margin="100,10,0,0" VerticalAlignment="Top" Click="Button_Collect_Click"/>
-        </Grid>
+        <Button x:Name="buttonScatter" Content="Разбросать" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Click="Button_Scatter_Click"/>
+        <Button Content="Собрать" HorizontalAlignment="Left" Margin="100,10,0,0" VerticalAlignment="Top" Click="Button_Collect_Click"/>
+    </Grid>
 </Window>
