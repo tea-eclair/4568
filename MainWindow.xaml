@@ -13,7 +13,7 @@
           <Image x:Name="zamok" Source="file:///C:/Users/Элина/Downloads/zamok%20(1).png"
           Width="502" Height="502" Canvas.Top="50" Canvas.Left="50" />
           <Image x:Name="krug.png" Source="file:///C:/Users/Элина/Downloads/krug%20(1).png"
-          RenderTransformOrigin=".5,.5" Width="415" Height="415" Canvas.Top="94" Canvas.Left="94" />
+          RenderTransformOrigin=".5,.5" Width="415" Height="415" Canvas.Top="94" Canvas.Left="94" >
           <Image.RenderTransform>
             <RotateTransform Angle="0" />
           </Image.RenderTransform>   
