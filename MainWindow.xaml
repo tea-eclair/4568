@@ -3,16 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:safee"
+        xmlns:local="clr-namespace:Safe"
         mc:Ignorable="d"
         Title="MainWindow" Top="20" Left="20" Height="700" Width="600">
     <StackPanel>
-        <TextBlock x:Name="mynumber" Text="Введите число" />
+    
+        <TextBox x:Name="mynumber" Text="Введите число" />
         <Button Content="Задать пароль" Click="Button_Click" />
         <Canvas x:Name="MainCanvas" Background="Transparent" Margin="0,0,0,0" Width="600" Height="600">
           <Image x:Name="zamok" Source="file:///C:/Users/Элина/Downloads/zamok%20(1).png"
           Width="502" Height="502" Canvas.Top="50" Canvas.Left="50" />
-          <Image x:Name="krug.png" Source="file:///C:/Users/Элина/Downloads/krug%20(1).png"
+          <Image x:Name="krug" Source="file:///C:/Users/Элина/Downloads/krug%20(1).png"
           RenderTransformOrigin=".5,.5" Width="415" Height="415" Canvas.Top="94" Canvas.Left="94" >
           <Image.RenderTransform>
             <RotateTransform Angle="0" />
