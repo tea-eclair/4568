@@ -84,44 +84,45 @@ namespace NoteApp
             notesList.SelectedItem = newNote;
         }
 
-        private void SaveNote_Click(object sender, RoutedEventArgs e) //сохраняет выбранную заметку в текстовый файл.
+        private void SaveNote_Click(object sender, RoutedEventArgs e)
+{
+    var selectedNote = notesList.SelectedItem as Note;
+    if (selectedNote != null)
+    {
+        var saveFileDialog = new SaveFileDialog
         {
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
-            {
-                var saveFileDialog = new SaveFileDialog
-                {
-                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                    DefaultExt = ".txt"
-                };
+            Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+            DefaultExt = ".txt"
+        };
 
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    File.WriteAllText(saveFileDialog.FileName, selectedNote.Content);
-                }
-            }
-        }
-
-        private void OpenNote_Click(object sender, RoutedEventArgs e) //открывает текстовый файл с заметкой и добавляет его в список заметок.
+        if (saveFileDialog.ShowDialog() == true)
         {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                var content = File.ReadAllText(openFileDialog.FileName);
-                var newNote = new Note
-                {
-                    Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName),
-                    Content = content,
-                    CreationDate = File.GetCreationTime(openFileDialog.FileName)
-                };
-                _notes.Add(newNote);
-                notesList.SelectedItem = newNote;
-            }
+            File.WriteAllText(saveFileDialog.FileName, contentTextBox.Text);
         }
+    }
+}
+
+private void OpenNote_Click(object sender, RoutedEventArgs e)
+{
+    var openFileDialog = new OpenFileDialog
+    {
+        Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+    };
+
+    if (openFileDialog.ShowDialog() == true)
+    {
+        var content = File.ReadAllText(openFileDialog.FileName);
+        var newNote = new Note
+        {
+            Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName),
+            Content = content,
+            CreationDate = File.GetCreationTime(openFileDialog.FileName)
+        };
+        _notes.Add(newNote);
+        notesList.SelectedItem = newNote;
+    }
+}
+
 
         private void Image_Click(object sender, RoutedEventArgs e) //позволяет прикрепить изображение к выбранной заметке.
         {
