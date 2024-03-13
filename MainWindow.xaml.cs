@@ -44,19 +44,19 @@ namespace Safe
         }
 
         private void Krug_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (isDragging)
-            {
-                Point currentPoint = e.GetPosition(MainCanvas);
-                Vector delta = currentPoint - startPoint;
-                double angle = 360 + (Math.Atan2(delta.Y, delta.X) * (180 / Math.PI));
+{
+    if (isDragging)
+    {
+        Point currentPoint = e.GetPosition(MainCanvas);
+        Vector delta = currentPoint - startPoint;
+        double angle = Math.Atan2(delta.Y, delta.X) * (180 / Math.PI);
+        angle = (angle + 360) % 360;
+        double mappedNumber = Map(angle, 0, 360, 99, 0); // Измененный маппинг
+        result = Convert.ToInt32(mappedNumber);
+        ((RotateTransform)krug.RenderTransform).Angle = angle;
+    }
+}
 
-                angle = (angle + 360) % 360;
-                double mappedNumber = Map(angle, 0, 360, 0, 99);
-                result = Convert.ToInt32(mappedNumber);
-                ((RotateTransform)krug.RenderTransform).Angle = angle;
-            }
-        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
