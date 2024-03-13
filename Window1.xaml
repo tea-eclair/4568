@@ -8,9 +8,10 @@
     <Window.Resources>
         <Style x:Key="RoundedButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="LightBlue"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -27,21 +28,21 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Margin="10">
-            <Button Content="New Note" Click="NewNote_Click" Margin="0 0 0 5" Style="{StaticResource RoundedButtonStyle}"/>
-            <Button Content="Save Note" Click="SaveNote_Click" Margin="0 0 0 5" Style="{StaticResource RoundedButtonStyle}"/>
-            <Button Content="Open Note" Click="OpenNote_Click" Margin="0 0 0 5" Style="{StaticResource RoundedButtonStyle}"/>
-            <Button Content="Attach Image" Click="Image_Click" Style="{StaticResource RoundedButtonStyle}"/>
+        <StackPanel Grid.Column="0" Margin="10,10,10,377" Orientation="Horizontal">
+            <Button Content="New" Click="NewNote_Click" Style="{StaticResource RoundedButtonStyle}"/>
+            <Button Content="Save" Click="SaveNote_Click" Style="{StaticResource RoundedButtonStyle}"/>
+            <Button Content="Open" Click="OpenNote_Click" Style="{StaticResource RoundedButtonStyle}"/>
+            <Button Content="Image" Click="Image_Click" Style="{StaticResource RoundedButtonStyle}"/>
         </StackPanel>
-        <Grid Grid.Column="1">
+        <Grid Margin="10,63,10,10" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Text="Notes" FontSize="20" Margin="10 5"/>
-            <ListBox x:Name="notesList" Grid.Row="1" Margin="10"/>
-            <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="10"/>
-            <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="10" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
+            <ListBox x:Name="notesList" Grid.Row="1" Margin="10,0,545,20"/>
+            <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="250,10,10,10"/>
+           <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="250,10,0,20" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" Grid.RowSpan="2"/>
         </Grid>
     </Grid>
 </Window>
