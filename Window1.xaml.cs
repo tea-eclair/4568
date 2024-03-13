@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Win32;
 
 namespace NoteApp
@@ -73,7 +75,7 @@ namespace NoteApp
             notesList.ItemsSource = _notes;
         }
 
-        private void NewNote_Click(object sender, RoutedEventArgs e) // создает новую заметку и добавляет ее в список заметок.
+        private void NewNote_Click(object sender, RoutedEventArgs e)
         {
             var newNote = new Note
             {
@@ -85,46 +87,46 @@ namespace NoteApp
         }
 
         private void SaveNote_Click(object sender, RoutedEventArgs e)
-{
-    var selectedNote = notesList.SelectedItem as Note;
-    if (selectedNote != null)
-    {
-        var saveFileDialog = new SaveFileDialog
         {
-            Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-            DefaultExt = ".txt"
-        };
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                    DefaultExt = ".txt"
+                };
 
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            File.WriteAllText(saveFileDialog.FileName, contentTextBox.Text);
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    File.WriteAllText(saveFileDialog.FileName, contentTextBox.Text);
+                }
+            }
         }
-    }
-}
 
-private void OpenNote_Click(object sender, RoutedEventArgs e)
-{
-    var openFileDialog = new OpenFileDialog
-    {
-        Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
-    };
-
-    if (openFileDialog.ShowDialog() == true)
-    {
-        var content = File.ReadAllText(openFileDialog.FileName);
-        var newNote = new Note
+        private void OpenNote_Click(object sender, RoutedEventArgs e)
         {
-            Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName),
-            Content = content,
-            CreationDate = File.GetCreationTime(openFileDialog.FileName)
-        };
-        _notes.Add(newNote);
-        notesList.SelectedItem = newNote;
-    }
-}
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var content = File.ReadAllText(openFileDialog.FileName);
+                var newNote = new Note
+                {
+                    Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName),
+                    Content = content,
+                    CreationDate = File.GetCreationTime(openFileDialog.FileName)
+                };
+                _notes.Add(newNote);
+                notesList.SelectedItem = newNote;
+            }
+        }
 
 
-        private void Image_Click(object sender, RoutedEventArgs e) //позволяет прикрепить изображение к выбранной заметке.
+        private void Image_Click(object sender, RoutedEventArgs e)
         {
             var selectedNote = notesList.SelectedItem as Note;
             if (selectedNote != null)
@@ -141,5 +143,55 @@ private void OpenNote_Click(object sender, RoutedEventArgs e)
                 }
             }
         }
+
+        private void NotesList_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (notesList.SelectedItem != null)
+            {
+                titleTextBox.Visibility = Visibility.Visible;
+                titleTextBox.Focus();
+                titleTextBox.SelectAll();
+            }
+        }
+
+        private void TitleTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            titleTextBox.Visibility = Visibility.Collapsed;
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                selectedNote.Title = titleTextBox.Text;
+            }
+        }
+
+        private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                selectedNote.Title = titleTextBox.Text;
+                titleTextBox.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void NoteTitle_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                var listItem = (FrameworkElement)sender;
+                var selectedNote = listItem.DataContext as Note;
+
+                if (selectedNote != null)
+                {
+                    selectedNote.Title = ((TextBlock)sender).Text;
+
+                    titleTextBox.DataContext = selectedNote;
+                    titleTextBox.Visibility = Visibility.Visible;
+                    titleTextBox.Focus();
+                    titleTextBox.SelectAll();
+                }
+            }
+        }
+
     }
 }
