@@ -5,16 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Note App" Height="450" Width="800">
+    <Window.Resources>
+        <Style x:Key="RoundedButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="LightBlue"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="20" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Margin="10">
-            <Button Content="New Note" Click="NewNote_Click" Margin="0 0 0 5"/>
-            <Button Content="Save Note" Click="SaveNote_Click" Margin="0 0 0 5"/>
-            <Button Content="Open Note" Click="OpenNote_Click" Margin="0 0 0 5"/>
-            <Button Content="Attach Image" Click="Image_Click"/>
+            <Button Content="New Note" Click="NewNote_Click" Margin="0 0 0 5" Style="{StaticResource RoundedButtonStyle}"/>
+            <Button Content="Save Note" Click="SaveNote_Click" Margin="0 0 0 5" Style="{StaticResource RoundedButtonStyle}"/>
+            <Button Content="Open Note" Click="OpenNote_Click" Margin="0 0 0 5" Style="{StaticResource RoundedButtonStyle}"/>
+            <Button Content="Attach Image" Click="Image_Click" Style="{StaticResource RoundedButtonStyle}"/>
         </StackPanel>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
