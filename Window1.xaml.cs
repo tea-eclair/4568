@@ -1,61 +1,143 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Microsoft.Win32;
 
-namespace drag2
+namespace NoteApp
 {
-    /// <summary>
-    /// Логика взаимодействия для Window1.xaml
-    /// </summary>
-    public partial class Window1 : Window
+    public class Note : INotifyPropertyChanged
     {
-        public Window1()
+        private string _title;
+        private string _content;
+        private DateTime _creationDate;
+        private string _imagePath;
+
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Content
+        {
+            get => _content;
+            set
+            {
+                _content = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime CreationDate
+        {
+            get => _creationDate;
+            set
+            {
+                _creationDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string ImagePath
+        {
+            get => _imagePath;
+            set
+            {
+                _imagePath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public partial class MainWindow : Window
+    {
+        private ObservableCollection<Note> _notes = new ObservableCollection<Note>();
+
+        public MainWindow()
         {
             InitializeComponent();
+            notesList.ItemsSource = _notes;
         }
 
-        private void Canvas2DragOver(object sender, DragEventArgs e)
+        private void NewNote_Click(object sender, RoutedEventArgs e) // создает новую заметку и добавляет ее в список заметок.
         {
-            object data = e.Data.GetData(DataFormats.Serializable);
-            if (data is UIElement element)
+            var newNote = new Note
             {
-                double elementWidth = element.RenderSize.Width;
-                double elementHeight = element.RenderSize.Height;
-                Point dropPosition = e.GetPosition(canvas);
-                Canvas.SetLeft(element, dropPosition.X - elementWidth / 2);
-                Canvas.SetTop(element, dropPosition.Y - elementHeight / 2);
-            }
+                Title = "New Note",
+                CreationDate = DateTime.Now
+            };
+            _notes.Add(newNote);
+            notesList.SelectedItem = newNote;
         }
-        private void Canvas2DragLeave(object sender, DragEventArgs e)
+
+        private void SaveNote_Click(object sender, RoutedEventArgs e) //сохраняет выбранную заметку в текстовый файл.
         {
-            object data = e.Data.GetData(DataFormats.Serializable);
-            if (data is UIElement element)
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
             {
-                canvas.Children.Remove(element);
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                    DefaultExt = ".txt"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    File.WriteAllText(saveFileDialog.FileName, selectedNote.Content);
+                }
             }
         }
 
-        public void Canvas2Drop(object sender, DragEventArgs e)
+        private void OpenNote_Click(object sender, RoutedEventArgs e) //открывает текстовый файл с заметкой и добавляет его в список заметок.
         {
-            object data = e.Data.GetData(DataFormats.Serializable);
-            if (data is UIElement element && !canvas.Children.Contains(element))
+            var openFileDialog = new OpenFileDialog
             {
-                double elementWidth = element.RenderSize.Width;
-                double elementHeight = element.RenderSize.Height;
-                Point dropPosition = e.GetPosition(canvas);
-                Canvas.SetLeft(element, dropPosition.X - elementWidth / 2);
-                Canvas.SetTop(element, dropPosition.Y - elementHeight / 2);
-                canvas.Children.Add(element);
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var content = File.ReadAllText(openFileDialog.FileName);
+                var newNote = new Note
+                {
+                    Title = Path.GetFileNameWithoutExtension(openFileDialog.FileName),
+                    Content = content,
+                    CreationDate = File.GetCreationTime(openFileDialog.FileName)
+                };
+                _notes.Add(newNote);
+                notesList.SelectedItem = newNote;
+            }
+        }
+
+        private void Image_Click(object sender, RoutedEventArgs e) //позволяет прикрепить изображение к выбранной заметке.
+        {
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp",
+                    Title = "Select an Image File"
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    selectedNote.ImagePath = openFileDialog.FileName;
+                }
             }
         }
     }
