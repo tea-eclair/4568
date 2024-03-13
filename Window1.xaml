@@ -23,6 +23,8 @@
             </Grid.RowDefinitions>
             <TextBlock Text="Notes" FontSize="20" Margin="10 5"/>
             <ListBox x:Name="notesList" Grid.Row="1" Margin="10"/>
+            <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="10"/>
+            <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="10" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
         </Grid>
     </Grid>
 </Window>
