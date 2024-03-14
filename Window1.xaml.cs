@@ -6,7 +6,9 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using Microsoft.Win32;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Controls;
+
 
 
 namespace NoteApp
@@ -126,23 +128,8 @@ namespace NoteApp
             }
         }
 
-        private void Image_Click(object sender, RoutedEventArgs e) //позволяет прикрепить изображение к выбранной заметке.
-        {
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
-            {
-                var openFileDialog = new OpenFileDialog
-                {
-                    Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp",
-                    Title = "Select an Image File"
-                };
 
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    selectedNote.ImagePath = openFileDialog.FileName;
-                }
-            }
-        }
+
 
         private void notesList_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
 {
@@ -159,13 +146,44 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
     var selectedNote = notesList.SelectedItem as Note;
     if (selectedNote != null)
     {
-        string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Edit Title", selectedNote.Title);
+        string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Rename", selectedNote.Title);
         if (!string.IsNullOrEmpty(newTitle))
         {
             selectedNote.Title = newTitle;
         }
     }
 }
+
+           private void Image_Click(object sender, RoutedEventArgs e)
+                {
+                    var selectedNote = notesList.SelectedItem as Note;
+                    if (selectedNote != null)
+                    {
+                        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                        dlg.DefaultExt = ".jpg";
+                        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
+
+                        if (dlg.ShowDialog() == true)
+                        {
+                            Image image = new Image();
+                            BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+                            image.Source = bitmap;
+                            image.Width = 100;
+                            image.Height = 100;
+                            SlideCanvas.Children.Add(image);
+                            Canvas.SetLeft(image, 0);
+                            Canvas.SetTop(image, 0);
+                            Panel.SetZIndex(image, SlideCanvas.Children.Count); 
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Сначала создайте новую заметку.");
+                    }
+                }
+
+
+
 
     }
 }
