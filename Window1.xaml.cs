@@ -4,9 +4,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using Microsoft.Win32;
+using System.Windows.Input;
+using System.Windows.Controls;
+
 
 namespace NoteApp
 {
@@ -75,7 +76,7 @@ namespace NoteApp
             notesList.ItemsSource = _notes;
         }
 
-        private void NewNote_Click(object sender, RoutedEventArgs e)
+        private void NewNote_Click(object sender, RoutedEventArgs e) // создает новую заметку и добавляет ее в список заметок.
         {
             var newNote = new Note
             {
@@ -86,7 +87,7 @@ namespace NoteApp
             notesList.SelectedItem = newNote;
         }
 
-        private void SaveNote_Click(object sender, RoutedEventArgs e)
+        private void SaveNote_Click(object sender, RoutedEventArgs e) //сохраняет выбранную заметку в текстовый файл.
         {
             var selectedNote = notesList.SelectedItem as Note;
             if (selectedNote != null)
@@ -99,12 +100,12 @@ namespace NoteApp
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
-                    File.WriteAllText(saveFileDialog.FileName, contentTextBox.Text);
+                    File.WriteAllText(saveFileDialog.FileName, selectedNote.Content);
                 }
             }
         }
 
-        private void OpenNote_Click(object sender, RoutedEventArgs e)
+        private void OpenNote_Click(object sender, RoutedEventArgs e) //открывает текстовый файл с заметкой и добавляет его в список заметок.
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -125,8 +126,7 @@ namespace NoteApp
             }
         }
 
-
-        private void Image_Click(object sender, RoutedEventArgs e)
+        private void Image_Click(object sender, RoutedEventArgs e) //позволяет прикрепить изображение к выбранной заметке.
         {
             var selectedNote = notesList.SelectedItem as Note;
             if (selectedNote != null)
@@ -144,54 +144,28 @@ namespace NoteApp
             }
         }
 
-        private void NotesList_SelectionChanged(object sender, RoutedEventArgs e)
+        private void notesList_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+{
+    ListBox listBox = sender as ListBox;
+    if (listBox != null)
+    {
+        // Установка выбранного элемента списка при щелчке правой кнопкой мыши
+        listBox.SelectedItem = (e.OriginalSource as FrameworkElement)?.DataContext;
+    }
+}
+
+private void EditTitle_Click(object sender, RoutedEventArgs e)
+{
+    var selectedNote = notesList.SelectedItem as Note;
+    if (selectedNote != null)
+    {
+        string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Edit Title", selectedNote.Title);
+        if (!string.IsNullOrEmpty(newTitle))
         {
-            if (notesList.SelectedItem != null)
-            {
-                titleTextBox.Visibility = Visibility.Visible;
-                titleTextBox.Focus();
-                titleTextBox.SelectAll();
-            }
+            selectedNote.Title = newTitle;
         }
-
-        private void TitleTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            titleTextBox.Visibility = Visibility.Collapsed;
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
-            {
-                selectedNote.Title = titleTextBox.Text;
-            }
-        }
-
-        private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
-            {
-                selectedNote.Title = titleTextBox.Text;
-                titleTextBox.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void NoteTitle_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.RightButton == MouseButtonState.Pressed)
-            {
-                var listItem = (FrameworkElement)sender;
-                var selectedNote = listItem.DataContext as Note;
-
-                if (selectedNote != null)
-                {
-                    selectedNote.Title = ((TextBlock)sender).Text;
-
-                    titleTextBox.DataContext = selectedNote;
-                    titleTextBox.Visibility = Visibility.Visible;
-                    titleTextBox.Focus();
-                    titleTextBox.SelectAll();
-                }
-            }
-        }
+    }
+}
 
     }
 }
