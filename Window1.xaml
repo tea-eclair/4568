@@ -40,9 +40,21 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Text="Notes" FontSize="20" Margin="10 5"/>
-            <ListBox x:Name="notesList" Grid.Row="1" Margin="10,0,545,20"/>
+            <ListBox x:Name="notesList" Grid.Row="1" Margin="10,0,545,20" MouseRightButtonUp="notesList_MouseRightButtonUp">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Edit Title" Click="EditTitle_Click"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
             <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="250,10,10,10"/>
-           <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="250,10,0,20" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" Grid.RowSpan="2"/>
+            <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="250,10,0,20" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" Grid.RowSpan="2"/>
+            
         </Grid>
     </Grid>
 </Window>
