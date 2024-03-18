@@ -134,72 +134,72 @@ namespace NoteApp
 
 
         private void notesList_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-{
-    ListBox listBox = sender as ListBox;
-    if (listBox != null)
-    {
-        // Установка выбранного элемента списка при щелчке правой кнопкой мыши
-        listBox.SelectedItem = (e.OriginalSource as FrameworkElement)?.DataContext;
-    }
-}
-
-private void EditTitle_Click(object sender, RoutedEventArgs e)
-{
-    var selectedNote = notesList.SelectedItem as Note;
-    if (selectedNote != null)
-    {
-        string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Rename", selectedNote.Title);
-        if (!string.IsNullOrEmpty(newTitle))
         {
-            selectedNote.Title = newTitle;
+            ListBox listBox = sender as ListBox;
+            if (listBox != null)
+            {
+                // Установка выбранного элемента списка при щелчке правой кнопкой мыши
+                listBox.SelectedItem = (e.OriginalSource as FrameworkElement)?.DataContext;
+            }
         }
-    }
-}
 
-         private void Image_Click(object sender, RoutedEventArgs e)
-{
-    var selectedNote = notesList.SelectedItem as Note;
-    if (selectedNote != null)
-    {
-        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-        dlg.DefaultExt = ".jpg";
-        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
-
-        if (dlg.ShowDialog() == true)
+        private void EditTitle_Click(object sender, RoutedEventArgs e)
         {
-            // Читаем выбранный файл изображения
-            BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
-
-            // Создаем новое изображение и задаем его свойства
-            Image image = new Image();
-            image.Source = bitmap;
-            image.Width = 100;
-            image.Height = 100;
-
-            // Устанавливаем положение изображения на Canvas
-            Canvas.SetLeft(image, 0);
-            Canvas.SetTop(image, 0);
-
-            // Добавляем изображение на Canvas
-            contentCanvas.Children.Add(image);
-
-            // Добавляем TextBlock для печати текста внутри канваса
-            TextBlock textBlock = new TextBlock();
-            Canvas.SetLeft(textBlock, 10);
-            Canvas.SetTop(textBlock, 120); // Измените эти значения в соответствии с вашими потребностями
-            contentCanvas.Children.Add(textBlock);
-
-            // Обработчики событий для перемещения изображения
-            image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
-            image.MouseMove += Image_MouseMove;
-            image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Rename", selectedNote.Title);
+                if (!string.IsNullOrEmpty(newTitle))
+                {
+                    selectedNote.Title = newTitle;
+                }
+            }
         }
-    }
-    else
-    {
-        MessageBox.Show("Сначала создайте новую заметку.");
-    }
-}
+
+        private void Image_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                dlg.DefaultExt = ".jpg";
+                dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
+
+                if (dlg.ShowDialog() == true)
+                {
+                    // Читаем выбранный файл изображения
+                    BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+
+                    // Создаем новое изображение и задаем его свойства
+                    Image image = new Image();
+                    image.Source = bitmap;
+                    image.Width = 100;
+                    image.Height = 100;
+
+                    // Устанавливаем положение изображения на Canvas
+                    Canvas.SetLeft(image, 0);
+                    Canvas.SetTop(image, 0);
+
+                    // Добавляем изображение на Canvas
+                    contentCanvas.Children.Add(image);
+
+                    // Добавляем TextBlock для печати текста внутри канваса
+                    TextBlock textBlock = new TextBlock();
+                    Canvas.SetLeft(textBlock, 10);
+                    Canvas.SetTop(textBlock, 120); // Измените эти значения в соответствии с вашими потребностями
+                    contentCanvas.Children.Add(textBlock);
+
+                    // Обработчики событий для перемещения изображения
+                    image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+                    image.MouseMove += Image_MouseMove;
+                    image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Сначала создайте новую заметку.");
+            }
+        }
 
 
 
@@ -252,7 +252,7 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
             // Создаем текстовый блок с руководством
             TextBlock guideText = new TextBlock();
             guideText.Height = 1500;
-          
+
 
             Run run = new Run();
             run.Text = "Введение\n";
@@ -263,10 +263,10 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
             run2.Text = "Приложение \"Note App\" представляет собой удобный инструмент для создания, сохранения и управления заметками.\n " +
                 "Оно позволяет пользователям создавать новые заметки, открывать существующие заметки из текстовых файлов, редактировать и сохранять их.\n " +
                 "Кроме того, приложение поддерживает добавление изображений в заметки и их перемещение внутри текстового блока.\n" +
-                "\n \n ";  
+                "\n \n ";
             run2.FontWeight = FontWeights.Regular;
             guideText.Inlines.Add(run2);
-            
+
             Run run3 = new Run();
             run3.Text = "Использование\n\n";
             run3.FontSize = 16;
@@ -282,7 +282,7 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
                  "\n\n ";
             run4.FontWeight = FontWeights.Regular;
             guideText.Inlines.Add(run4);
-            
+
             Image image = new Image();
             string imagePath = "NewButt.jpeg";
             ImageSource imageSource = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
@@ -306,7 +306,7 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
             image3.Width = 200;
             image3.Height = 200;
             guideText.Inlines.Add(image3);
-            
+
             Image image1 = new Image();
             string imagePath1 = "SaveButt.jpeg";
             ImageSource imageSource1 = new BitmapImage(new Uri(imagePath1, UriKind.RelativeOrAbsolute));
@@ -314,7 +314,7 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
             image1.Width = 100;
             image1.Height = 100;
             guideText.Inlines.Add(image1);
-            
+
             Run run5 = new Run();
             run5.Text = "\nОткрытие и редактирование существующей заметки \n\n";
             run5.FontSize = 16;
@@ -374,7 +374,7 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
             run12.FontWeight = FontWeights.Regular;
             guideText.Inlines.Add(run12);
 
-            
+
             /*Image image1 = new Image();
             string imagePath1 = "tigro-3.jpg";
             ImageSource imageSource1 = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
@@ -385,20 +385,20 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
 
 
             ScrollViewer scrollViewer = new ScrollViewer();
-    scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-    scrollViewer.Content =  guideText;
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            scrollViewer.Content = guideText;
 
-    // Добавляем скроллер в окно
-    helpWindow.Content = scrollViewer;
+            // Добавляем скроллер в окно
+            helpWindow.Content = scrollViewer;
 
-    // Отображаем новое окно
-    helpWindow.Show();
+            // Отображаем новое окно
+            helpWindow.Show();
 
         }
 
-       
 
-       
+
+
 
 
     }
