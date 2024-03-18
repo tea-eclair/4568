@@ -156,47 +156,53 @@ private void EditTitle_Click(object sender, RoutedEventArgs e)
     }
 }
 
-           private void Image_Click(object sender, RoutedEventArgs e)
-                {
-                    var selectedNote = notesList.SelectedItem as Note;
-                    if (selectedNote != null)
-                    {
-                        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                        dlg.DefaultExt = ".jpg";
-                        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
+         private void Image_Click(object sender, RoutedEventArgs e)
+{
+    var selectedNote = notesList.SelectedItem as Note;
+    if (selectedNote != null)
+    {
+        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+        dlg.DefaultExt = ".jpg";
+        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
 
-                         if (dlg.ShowDialog() == true)
-                {
-                    // Читаем выбранный файл изображения
-                    BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+        if (dlg.ShowDialog() == true)
+        {
+            // Читаем выбранный файл изображения
+            BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
 
-                    // Создаем новое изображение и задаем его свойства
-                    Image image = new Image();
-                    image.Source = bitmap;
-                    image.Width = 100;
-                    image.Height = 100;
+            // Создаем новое изображение и задаем его свойства
+            Image image = new Image();
+            image.Source = bitmap;
+            image.Width = 100;
+            image.Height = 100;
 
-                    // Создаем контейнер для изображения
-                    InlineUIContainer container = new InlineUIContainer(image);
+            // Устанавливаем положение изображения на Canvas
+            Canvas.SetLeft(image, 0);
+            Canvas.SetTop(image, 0);
 
-                    // Создаем параграф и добавляем контейнер в параграф
-                    Paragraph paragraph = new Paragraph(container);
+            // Добавляем изображение на Canvas
+            contentCanvas.Children.Add(image);
 
-                    // Добавляем параграф в RichTextBox
-                    contentTextBox.Text += paragraph;
+            // Добавляем TextBlock для печати текста внутри канваса
+            TextBlock textBlock = new TextBlock();
+            Canvas.SetLeft(textBlock, 10);
+            Canvas.SetTop(textBlock, 120); // Измените эти значения в соответствии с вашими потребностями
+            contentCanvas.Children.Add(textBlock);
 
-
-                    // Обработчики событий для перемещения изображения
-                    image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
-                    image.MouseMove += Image_MouseMove;
-                    image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Сначала создайте новую заметку.");
-            }
+            // Обработчики событий для перемещения изображения
+            image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+            image.MouseMove += Image_MouseMove;
+            image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
         }
+    }
+    else
+    {
+        MessageBox.Show("Сначала создайте новую заметку.");
+    }
+}
+
+
+
 
 
         // Переменные для перемещения изображения
