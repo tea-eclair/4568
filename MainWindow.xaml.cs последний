@@ -11,8 +11,6 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-
-
 namespace NoteApp
 {
     public class Note : INotifyPropertyChanged
@@ -73,43 +71,69 @@ namespace NoteApp
     public partial class MainWindow : Window
     {
         private ObservableCollection<Note> _notes = new ObservableCollection<Note>();
+        private Note _selectedNote; // Переменная для хранения текущей выбранной заметки
 
         public MainWindow()
         {
             InitializeComponent();
             notesList.ItemsSource = _notes;
+           contentTextBox.TextChanged += ContentTextBox_TextChanged;  // Добавляем обработчик событий при изменении выбора в списке
         }
 
-        private void NewNote_Click(object sender, RoutedEventArgs e) // создает новую заметку и добавляет ее в список заметок.
+         private void ContentTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        // Проверяем, есть ли выбранная заметка
+        if (notesList.SelectedItem is Note selectedNote)
         {
-            var newNote = new Note
-            {
-                Title = "New Note",
-                CreationDate = DateTime.Now
-            };
-            _notes.Add(newNote);
-            notesList.SelectedItem = newNote;
+            // Обновляем содержимое выбранной заметки
+            selectedNote.Content = contentTextBox.Text;
         }
+    }
 
-        private void SaveNote_Click(object sender, RoutedEventArgs e) //сохраняет выбранную заметку в текстовый файл.
-        {
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
+        private void notesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
             {
-                var saveFileDialog = new SaveFileDialog
+                if (notesList.SelectedItem != null)
                 {
-                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                    DefaultExt = ".txt"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
+                    _selectedNote = notesList.SelectedItem as Note;
+                    contentTextBox.IsEnabled = true; // Включаем текстбокс при выборе заметки
+                    contentTextBox.Text = _selectedNote.Content; // Загружаем содержимое выбранной заметки в текстбокс
+                }
+                else
                 {
-                    File.WriteAllText(saveFileDialog.FileName, selectedNote.Content);
+                    _selectedNote = null;
+                    contentTextBox.IsEnabled = false; // Отключаем текстбокс, если заметка не выбрана
+                    contentTextBox.Text = ""; // Очищаем содержимое текстбокса
                 }
             }
-        }
 
-        private void OpenNote_Click(object sender, RoutedEventArgs e) //открывает текстовый файл с заметкой и добавляет его в список заметок.
+
+        private void NewNote_Click(object sender, RoutedEventArgs e)
+{
+    // Создаем уникальное имя на основе текущей даты и времени
+    string newTitle = "Note_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+    // Показываем диалоговое окно для ввода названия заметки
+    newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter the title for the new note:", "New Note", newTitle);
+
+    if (!string.IsNullOrEmpty(newTitle))
+    {
+        // Создаем новую заметку с уникальным именем
+        var newNote = new Note
+        {
+            Title = newTitle,
+            Content = "", // Пока заметка пустая
+            CreationDate = DateTime.Now
+        };
+
+        _notes.Add(newNote);
+        notesList.SelectedItem = newNote;
+        contentTextBox.IsReadOnly = false; // Включаем редактирование текстбокса
+        contentTextBox.Text = ""; // Очищаем текстбокс
+    }
+}
+
+
+        private void OpenNote_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -127,10 +151,37 @@ namespace NoteApp
                 };
                 _notes.Add(newNote);
                 notesList.SelectedItem = newNote;
+                contentTextBox.Text = newNote.Content; // Устанавливаем текст из заметки в TextBox
+                contentTextBox.IsReadOnly = false; // Устанавливаем IsReadOnly на false для редактирования содержимого
             }
         }
 
+         private void SaveNote_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedNote != null)
+        {
+            _selectedNote.Content = contentTextBox.Text; // Сохраняем содержимое текстбокса в текущей выбранной заметке
+            // Далее добавьте код сохранения заметки в файл или в базу данных, если это необходимо
+        }
+        else
+        {
+            MessageBox.Show("Сначала выберите заметку для сохранения.");
+        }
+    }
 
+        private void EditTitle_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedNote = notesList.SelectedItem as Note;
+            if (selectedNote != null)
+            {
+                string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Rename", selectedNote.Title);
+                if (!string.IsNullOrEmpty(newTitle))
+                {
+                    selectedNote.Title = newTitle;
+                    selectedNote.Content = contentTextBox.Text; // Сохраняем текст из TextBox в текущей заметке
+                }
+            }
+        }
 
 
         private void notesList_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -143,18 +194,7 @@ namespace NoteApp
             }
         }
 
-        private void EditTitle_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
-            {
-                string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter new title:", "Rename", selectedNote.Title);
-                if (!string.IsNullOrEmpty(newTitle))
-                {
-                    selectedNote.Title = newTitle;
-                }
-            }
-        }
+        
 
         private void Image_Click(object sender, RoutedEventArgs e)
         {
@@ -212,7 +252,7 @@ namespace NoteApp
         private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
-            startPoint = e.GetPosition(SlideCanvas);
+            startPoint = e.GetPosition(contentCanvas);
         }
 
         private void Image_MouseMove(object sender, MouseEventArgs e)
@@ -222,7 +262,7 @@ namespace NoteApp
                 Image image = sender as Image;
                 if (image != null)
                 {
-                    Point currentPoint = e.GetPosition(SlideCanvas);
+                    Point currentPoint = e.GetPosition(contentCanvas);
                     double offsetX = currentPoint.X - startPoint.X;
                     double offsetY = currentPoint.Y - startPoint.Y;
 
