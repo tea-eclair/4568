@@ -53,7 +53,11 @@
                 </ListBox.ContextMenu>
             </ListBox>
             <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="250,10,10,10"/>
-           <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="250,10,0,20" VerticalScrollBarVisibility="Auto" Grid.RowSpan="2"/>
+         <Border BorderBrush="Black" BorderThickness="1" Margin="250,10,0,20" Grid.RowSpan="2">
+    <Canvas x:Name="contentCanvas" Background="White"/>
+</Border>
+
+
 
 
         </Grid>
