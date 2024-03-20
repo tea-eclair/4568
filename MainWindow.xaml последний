@@ -52,9 +52,9 @@
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
-            <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="250,10,10,10"/>
-            <Canvas x:Name="contentCanvas" Background="White">
-                <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.ContentText, ElementName=notesList}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="502" Height="306" Canvas.Left="255" Canvas.Top="19" />
+            <TextBox x:Name="titleTextBox" Text="{Binding SelectedItem.Title, ElementName=notesList}" Margin="250,10,246,10"/>
+            <Canvas x:Name="contentCanvas" Background="White" Margin="250,10,0,20" Grid.Row="1">
+                <TextBox x:Name="contentTextBox" Text="{Binding SelectedItem.Content, ElementName=notesList}" Margin="10" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
             </Canvas>
 
         </Grid>
