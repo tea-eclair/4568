@@ -30,7 +30,6 @@
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Margin="10,10,10,377" Orientation="Horizontal">
             <Button Content="New" Click="NewNote_Click" Style="{StaticResource RoundedButtonStyle}"/>
-            <Button Content="Save" Click="SaveNote_Click" Style="{StaticResource RoundedButtonStyle}"/>
             <Button Content="Open" Click="OpenNote_Click" Style="{StaticResource RoundedButtonStyle}"/>
             <Button Content="Image" Click="Image_Click" Style="{StaticResource RoundedButtonStyle}"/>
         </StackPanel>
