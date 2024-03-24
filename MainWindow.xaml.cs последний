@@ -19,7 +19,19 @@ namespace NoteApp
         private string _content;
         private DateTime _creationDate;
         private string _imagePath;
-
+        private string _imageData; // Строка Base64 для хранения изображения
+        private string _imageBase64;
+        
+        public string ImageBase64
+        {
+            get => _imageBase64;
+            set
+            {
+                _imageBase64 = value;
+                OnPropertyChanged();
+            }
+        }
+        
         public string Title
         {
             get => _title;
@@ -60,6 +72,16 @@ namespace NoteApp
             }
         }
 
+         public string ImageData
+    {
+        get => _imageData;
+        set
+        {
+            _imageData = value;
+            OnPropertyChanged();
+        }
+    }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -72,6 +94,16 @@ namespace NoteApp
     {
         private ObservableCollection<Note> _notes = new ObservableCollection<Note>();
         private Note _selectedNote; // Переменная для хранения текущей выбранной заметки
+         private string ConvertImageToBase64(BitmapImage bitmapImage)
+    {
+        using (MemoryStream ms = new MemoryStream())
+        {
+            BitmapEncoder encoder = new PngBitmapEncoder(); // Выберите соответствующий тип кодировщика в зависимости от типа изображения
+            encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
+            encoder.Save(ms);
+            return Convert.ToBase64String(ms.ToArray());
+        }
+    }
 
         public MainWindow()
         {
@@ -157,18 +189,6 @@ namespace NoteApp
         }
         
 
-         private void SaveNote_Click(object sender, RoutedEventArgs e)
-    {
-        if (_selectedNote != null)
-        {
-            _selectedNote.Content = contentTextBox.Text; // Сохраняем содержимое текстбокса в текущей выбранной заметке
-            // Далее добавьте код сохранения заметки в файл или в базу данных, если это необходимо
-        }
-        else
-        {
-            MessageBox.Show("Сначала выберите заметку для сохранения.");
-        }
-    }
 
         private void EditTitle_Click(object sender, RoutedEventArgs e)
         {
@@ -198,51 +218,59 @@ namespace NoteApp
         
 
         private void Image_Click(object sender, RoutedEventArgs e)
+{
+    var selectedNote = notesList.SelectedItem as Note;
+    if (selectedNote != null)
+    {
+        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+        dlg.DefaultExt = ".jpg";
+        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
+
+        if (dlg.ShowDialog() == true)
         {
-            var selectedNote = notesList.SelectedItem as Note;
-            if (selectedNote != null)
-            {
-                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                dlg.DefaultExt = ".jpg";
-                dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
+            // Читаем выбранный файл изображения
+            BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
 
-                if (dlg.ShowDialog() == true)
-                {
-                    // Читаем выбранный файл изображения
-                    BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+            // Создаем новое изображение и задаем его свойства
+            Image image = new Image();
+            image.Source = bitmap;
+            image.Width = 100;
+            image.Height = 100;
 
-                    // Создаем новое изображение и задаем его свойства
-                    Image image = new Image();
-                    image.Source = bitmap;
-                    image.Width = 100;
-                    image.Height = 100;
+            // Устанавливаем положение изображения на Canvas
+            Canvas.SetLeft(image, 0);
+            Canvas.SetTop(image, 0);
 
-                    // Устанавливаем положение изображения на Canvas
-                    Canvas.SetLeft(image, 0);
-                    Canvas.SetTop(image, 0);
+            // Добавляем изображение на Canvas
+            contentCanvas.Children.Add(image);
 
-                    // Добавляем изображение на Canvas
-                    contentCanvas.Children.Add(image);
+            // Преобразуем изображение в строку Base64 и сохраняем в заметке
+            string imageBase64 = ConvertImageToBase64(bitmap);
+            selectedNote.ImageBase64 = imageBase64;
 
-                    // Добавляем TextBlock для печати текста внутри канваса
-                    TextBlock textBlock = new TextBlock();
-                    Canvas.SetLeft(textBlock, 10);
-                    Canvas.SetTop(textBlock, 120); // Измените эти значения в соответствии с вашими потребностями
-                    contentCanvas.Children.Add(textBlock);
+            // Добавляем TextBlock для печати текста внутри канваса
+            TextBlock textBlock = new TextBlock();
+            Canvas.SetLeft(textBlock, 10);
+            Canvas.SetTop(textBlock, 120); // Измените эти значения в соответствии с вашими потребностями
+            contentCanvas.Children.Add(textBlock);
 
-                    // Обработчики событий для перемещения изображения
+            // Обработчики событий для перемещения изображения
                     image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
                     image.MouseMove += Image_MouseMove;
                     image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Сначала создайте новую заметку.");
-            }
         }
+    }
+    else
+    {
+        MessageBox.Show("Сначала создайте новую заметку.");
+    }
+}
 
 
+//  // Обработчики событий для перемещения изображения
+//                     image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+//                     image.MouseMove += Image_MouseMove;
+//                     image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
 
 
 
@@ -319,7 +347,6 @@ namespace NoteApp
                 "3.Нажмите кнопку \"New\", чтобы создать новую заметку.\r\n" +
                 "4.Введите заголовок для вашей заметки.\r\n" +
                 "5.Введите текст вашей заметки в текстовом поле.\r\n" +
-                "6.Нажмите кнопку \"Save\", чтобы сохранить заметку.\r\n " +
                  "\n\n ";
             run4.FontWeight = FontWeights.Regular;
             guideText.Inlines.Add(run4);
@@ -348,14 +375,6 @@ namespace NoteApp
             image3.Height = 200;
             guideText.Inlines.Add(image3);
 
-            Image image1 = new Image();
-            string imagePath1 = "SaveButt.jpeg";
-            ImageSource imageSource1 = new BitmapImage(new Uri(imagePath1, UriKind.RelativeOrAbsolute));
-            image1.Source = imageSource1;
-            image1.Width = 100;
-            image1.Height = 100;
-            guideText.Inlines.Add(image1);
-
             Run run5 = new Run();
             run5.Text = "\nОткрытие и редактирование существующей заметки \n\n";
             run5.FontSize = 16;
@@ -366,7 +385,6 @@ namespace NoteApp
                 "2.Нажмите кнопку \"Open\", чтобы выбрать существующий файл с заметкой.\r\n" +
                 "3.Выберите файл с заметкой из диалогового окна.\r\n" +
                 "4.Редактируйте текст заметки в текстовом поле по вашему усмотрению.\r\n" +
-                "5.Нажмите кнопку \"Save\", чтобы сохранить изменения.\n" +
                 "\n\n";
             run6.FontWeight = FontWeights.Regular;
             guideText.Inlines.Add(run6);
