@@ -21,6 +21,28 @@ namespace NoteApp
         private string _imagePath;
         private string _imageData; // Строка Base64 для хранения изображения
         private string _imageBase64;
+        private double _imageLeft;
+        private double _imageTop;
+    public double ImageLeft
+    {
+        get => _imageLeft;
+        set
+        {
+            _imageLeft = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double ImageTop
+    {
+        get => _imageTop;
+        set
+        {
+            _imageTop = value;
+            OnPropertyChanged();
+        }
+    }
+
         
         public string ImageBase64
         {
@@ -84,10 +106,10 @@ namespace NoteApp
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
     }
 
     public partial class MainWindow : Window
@@ -122,21 +144,59 @@ namespace NoteApp
         }
     }
 
+    private BitmapImage ConvertBase64ToImage(string base64String)
+{
+    byte[] imageBytes = Convert.FromBase64String(base64String);
+    using (MemoryStream ms = new MemoryStream(imageBytes))
+    {
+        BitmapImage bitmapImage = new BitmapImage();
+        bitmapImage.BeginInit();
+        bitmapImage.StreamSource = ms;
+        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+        bitmapImage.EndInit();
+        return bitmapImage;
+    }
+}
+
+
         private void notesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (notesList.SelectedItem != null)
+        {
+            _selectedNote = notesList.SelectedItem as Note;
+            contentTextBox.IsEnabled = true;
+            contentTextBox.Text = _selectedNote.Content;
+
+            // Показываем сохраненные изображения при выборе заметки
+            contentCanvas.Children.Clear(); // Очищаем Canvas от предыдущих элементов
+
+            // Восстанавливаем сохраненные изображения на Canvas
+            if (!string.IsNullOrEmpty(_selectedNote.ImageBase64))
             {
-                if (notesList.SelectedItem != null)
-                {
-                    _selectedNote = notesList.SelectedItem as Note;
-                    contentTextBox.IsEnabled = true; // Включаем текстбокс при выборе заметки
-                    contentTextBox.Text = _selectedNote.Content; // Загружаем содержимое выбранной заметки в текстбокс
-                }
-                else
-                {
-                    _selectedNote = null;
-                    contentTextBox.IsEnabled = false; // Отключаем текстбокс, если заметка не выбрана
-                    contentTextBox.Text = ""; // Очищаем содержимое текстбокса
-                }
+                BitmapImage bitmap = ConvertBase64ToImage(_selectedNote.ImageBase64);
+                Image image = new Image();
+                image.Source = bitmap;
+                image.Width = 100;
+                image.Height = 100;
+                Canvas.SetLeft(image, _selectedNote.ImageLeft);
+                Canvas.SetTop(image, _selectedNote.ImageTop);
+                contentCanvas.Children.Add(image);
+
+                // Добавляем обработчики событий для перемещения изображения
+                image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+                image.MouseMove += Image_MouseMove;
+                image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
             }
+        }
+        else
+        {
+            _selectedNote = null;
+            contentTextBox.IsEnabled = false;
+            contentTextBox.Text = "";
+            contentCanvas.Children.Clear(); // Очищаем Canvas, если заметка не выбрана
+        }
+    }
+
 
 
         private void NewNote_Click(object sender, RoutedEventArgs e)
@@ -218,53 +278,45 @@ namespace NoteApp
         
 
         private void Image_Click(object sender, RoutedEventArgs e)
-{
-    var selectedNote = notesList.SelectedItem as Note;
-    if (selectedNote != null)
     {
-        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-        dlg.DefaultExt = ".jpg";
-        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
-
-        if (dlg.ShowDialog() == true)
+        var selectedNote = notesList.SelectedItem as Note;
+        if (selectedNote != null)
         {
-            // Читаем выбранный файл изображения
-            BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.DefaultExt = ".jpg";
+            dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
 
-            // Создаем новое изображение и задаем его свойства
-            Image image = new Image();
-            image.Source = bitmap;
-            image.Width = 100;
-            image.Height = 100;
+            if (dlg.ShowDialog() == true)
+            {
+                BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
 
-            // Устанавливаем положение изображения на Canvas
-            Canvas.SetLeft(image, 0);
-            Canvas.SetTop(image, 0);
+                // Сохраняем данные о картинке и ее положении в заметке
+                selectedNote.ImageBase64 = ConvertImageToBase64(bitmap);
+                selectedNote.ImagePath = dlg.FileName;
+                selectedNote.ImageLeft = 0; // Начальное положение по горизонтали
+                selectedNote.ImageTop = 0; // Начальное положение по вертикали
 
-            // Добавляем изображение на Canvas
-            contentCanvas.Children.Add(image);
+                // Создаем и добавляем изображение на Canvas
+                Image image = new Image();
+                image.Source = bitmap;
+                image.Width = 100;
+                image.Height = 100;
+                Canvas.SetLeft(image, selectedNote.ImageLeft);
+                Canvas.SetTop(image, selectedNote.ImageTop);
+                contentCanvas.Children.Add(image);
 
-            // Преобразуем изображение в строку Base64 и сохраняем в заметке
-            string imageBase64 = ConvertImageToBase64(bitmap);
-            selectedNote.ImageBase64 = imageBase64;
-
-            // Добавляем TextBlock для печати текста внутри канваса
-            TextBlock textBlock = new TextBlock();
-            Canvas.SetLeft(textBlock, 10);
-            Canvas.SetTop(textBlock, 120); // Измените эти значения в соответствии с вашими потребностями
-            contentCanvas.Children.Add(textBlock);
-
-            // Обработчики событий для перемещения изображения
-                    image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
-                    image.MouseMove += Image_MouseMove;
-                    image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
+                // Добавляем обработчики событий для перемещения изображения
+                image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+                image.MouseMove += Image_MouseMove;
+                image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
+            }
+        }
+        else
+        {
+            MessageBox.Show("Сначала создайте новую заметку.");
         }
     }
-    else
-    {
-        MessageBox.Show("Сначала создайте новую заметку.");
-    }
-}
+
 
 
 //  // Обработчики событий для перемещения изображения
@@ -434,13 +486,13 @@ namespace NoteApp
             guideText.Inlines.Add(run12);
 
 
-            /*Image image1 = new Image();
+            Image image1 = new Image();
             string imagePath1 = "tigro-3.jpg";
             ImageSource imageSource1 = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             image1.Source = imageSource;
             image1.Width = 100;
             image1.Height = 100;
-            guideText.Inlines.Add(image1);*/
+            guideText.Inlines.Add(image1);
 
 
             ScrollViewer scrollViewer = new ScrollViewer();
@@ -460,5 +512,4 @@ namespace NoteApp
 
 
 
-    }
-}
+    }}
