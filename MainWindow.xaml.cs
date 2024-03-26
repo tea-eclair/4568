@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -23,17 +23,6 @@ namespace NoteApp
         private string _imageBase64;
         private double _imageLeft;
         private double _imageTop;
-         private Canvas _canvas;
-
-    public Canvas NoteCanvas
-    {
-        get => _canvas;
-        set
-        {
-            _canvas = value;
-            OnPropertyChanged();
-        }
-    }
     public double ImageLeft
     {
         get => _imageLeft;
@@ -171,27 +160,27 @@ namespace NoteApp
 
 
         private void notesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-{
-    if (notesList.SelectedItem != null)
     {
-        _selectedNote = notesList.SelectedItem as Note;
-        contentTextBox.IsEnabled = true;
-        contentTextBox.Text = _selectedNote.Content;
-
-        // Показываем сохраненные изображения при выборе заметки
-        contentCanvas.Children.Clear(); // Очищаем предыдущие элементы
-
-        if (_selectedNote.NoteCanvas == null)
+        if (notesList.SelectedItem != null)
         {
-            _selectedNote.NoteCanvas = new Canvas(); // Создаем новый канвас для заметки
-        }
+            _selectedNote = notesList.SelectedItem as Note;
+            contentTextBox.IsEnabled = true;
+            contentTextBox.Text = _selectedNote.Content;
 
-        // Восстанавливаем сохраненные изображения на канвасе заметки
-        foreach (var child in _selectedNote.NoteCanvas.Children)
-        {
-            if (child is Image image)
+            // Показываем сохраненные изображения при выборе заметки
+            contentCanvas.Children.Clear(); // Очищаем Canvas от предыдущих элементов
+
+            // Восстанавливаем сохраненные изображения на Canvas
+            if (!string.IsNullOrEmpty(_selectedNote.ImageBase64))
             {
-                _selectedNote.NoteCanvas.Children.Add(image); // Добавляем изображение на канвас заметки
+                BitmapImage bitmap = ConvertBase64ToImage(_selectedNote.ImageBase64);
+                Image image = new Image();
+                image.Source = bitmap;
+                image.Width = 100;
+                image.Height = 100;
+                Canvas.SetLeft(image, _selectedNote.ImageLeft);
+                Canvas.SetTop(image, _selectedNote.ImageTop);
+                contentCanvas.Children.Add(image);
 
                 // Добавляем обработчики событий для перемещения изображения
                 image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
@@ -199,47 +188,40 @@ namespace NoteApp
                 image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
             }
         }
-
-        // Добавляем канвас заметки в основной канвас
-        contentCanvas.Children.Add(_selectedNote.NoteCanvas);
+        else
+        {
+            _selectedNote = null;
+            contentTextBox.IsEnabled = false;
+            contentTextBox.Text = "";
+            contentCanvas.Children.Clear(); // Очищаем Canvas, если заметка не выбрана
+        }
     }
-    else
-    {
-        _selectedNote = null;
-        contentTextBox.IsEnabled = false;
-        contentTextBox.Text = "";
-        contentCanvas.Children.Clear(); // Очищаем Canvas, если заметка не выбрана
-    }
-}
-
-
 
 
 
         private void NewNote_Click(object sender, RoutedEventArgs e)
 {
     // Создаем уникальное имя на основе текущей даты и времени
-    // string newTitle = "Note_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
+    string newTitle = "Note_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
     // Показываем диалоговое окно для ввода названия заметки
-    string newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter the title for the new note:", "New Note", "Note_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+    newTitle = Microsoft.VisualBasic.Interaction.InputBox("Enter the title for the new note:", "New Note", newTitle);
 
-  
+    if (!string.IsNullOrEmpty(newTitle))
+    {
         // Создаем новую заметку с уникальным именем
-
         var newNote = new Note
         {
             Title = newTitle,
             Content = "", // Пока заметка пустая
-            CreationDate = DateTime.Now,
-
+            CreationDate = DateTime.Now
         };
-        
+
         _notes.Add(newNote);
         notesList.SelectedItem = newNote;
         contentTextBox.IsReadOnly = false; // Включаем редактирование текстбокса
         contentTextBox.Text = ""; // Очищаем текстбокс
-
+    }
 }
 
 
@@ -296,53 +278,44 @@ namespace NoteApp
         
 
         private void Image_Click(object sender, RoutedEventArgs e)
-{
-    var selectedNote = notesList.SelectedItem as Note;
-    if (selectedNote != null)
     {
-        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-        dlg.DefaultExt = ".jpg";
-        dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
-
-        if (dlg.ShowDialog() == true)
+        var selectedNote = notesList.SelectedItem as Note;
+        if (selectedNote != null)
         {
-            BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.DefaultExt = ".jpg";
+            dlg.Filter = "Images (*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
 
-            // Создаем канвас для заметки, если он еще не создан
-            if (selectedNote.NoteCanvas == null)
+            if (dlg.ShowDialog() == true)
             {
-                selectedNote.NoteCanvas = new Canvas();
-                contentCanvas.Children.Add(selectedNote.NoteCanvas);
+                BitmapImage bitmap = new BitmapImage(new Uri(dlg.FileName));
+
+                // Сохраняем данные о картинке и ее положении в заметке
+                selectedNote.ImageBase64 = ConvertImageToBase64(bitmap);
+                selectedNote.ImagePath = dlg.FileName;
+                selectedNote.ImageLeft = 0; // Начальное положение по горизонтали
+                selectedNote.ImageTop = 0; // Начальное положение по вертикали
+
+                // Создаем и добавляем изображение на Canvas
+                Image image = new Image();
+                image.Source = bitmap;
+                image.Width = 100;
+                image.Height = 100;
+                Canvas.SetLeft(image, selectedNote.ImageLeft);
+                Canvas.SetTop(image, selectedNote.ImageTop);
+                contentCanvas.Children.Add(image);
+
+                // Добавляем обработчики событий для перемещения изображения
+                image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
+                image.MouseMove += Image_MouseMove;
+                image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
             }
-
-            // Сохраняем данные о картинке и ее положении в заметке
-            selectedNote.ImageBase64 = ConvertImageToBase64(bitmap);
-            selectedNote.ImagePath = dlg.FileName;
-            selectedNote.ImageLeft = 0; // Начальное положение по горизонтали
-            selectedNote.ImageTop = 0; // Начальное положение по вертикали
-
-            // Создаем и добавляем изображение на канвас заметки
-            Image image = new Image();
-            image.Source = bitmap;
-            image.Width = 100;
-            image.Height = 100;
-            Canvas.SetLeft(image, selectedNote.ImageLeft);
-            Canvas.SetTop(image, selectedNote.ImageTop);
-            selectedNote.NoteCanvas.Children.Add(image); // Добавляем изображение на канвас заметки
-
-            // Добавляем обработчики событий для перемещения изображения
-            image.MouseLeftButtonDown += Image_MouseLeftButtonDown;
-            image.MouseMove += Image_MouseMove;
-            image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
+        }
+        else
+        {
+            MessageBox.Show("Сначала создайте новую заметку.");
         }
     }
-    else
-    {
-        MessageBox.Show("Сначала создайте новую заметку.");
-    }
-}
-
-
 
 
 
@@ -533,4 +506,10 @@ namespace NoteApp
             helpWindow.Show();
 
         }
+
+
+
+
+
+
     }}
