@@ -17,10 +17,9 @@ Windows 7 и выше
 
 ## Установка
 Склонируйте репозиторий с помощью команды:
-
-bash
-Copy code
+```bash
 git clone https://github.com/your-username/NoteApp.git
+```
 Откройте проект в Visual Studio.
 
 Соберите и запустите проект.
